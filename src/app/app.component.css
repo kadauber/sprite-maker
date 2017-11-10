@@ -1,0 +1,32 @@
+#selected-color {
+    height: 20px;
+    width: 20px;
+}
+
+.selected-color {
+    display: inline;
+}
+
+.color-button {
+    height: 20px;
+    width: 20px;
+}
+
+.black-color-button {
+    background-color: black;
+}
+
+.yellow-color-button {
+    background-color: #FFFF00;
+}
+
+table {
+    margin-top: 5px;
+    border-collapse: collapse;
+}
+
+td {
+    height: 20px;
+    width: 20px;
+    border: 1px solid white;
+}
