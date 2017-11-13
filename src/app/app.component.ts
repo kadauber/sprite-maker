@@ -125,17 +125,15 @@ export class AppComponent {
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
         this.sprites = sprs;
 
-        let lastSprite = this.sprites.reduce((acc, cur) => acc.id > cur.id ? acc : cur);
+        let lastSprite = this.sprites.reduce((acc, cur) => acc.name > cur.name ? acc : cur);
         // if this was the last sprite in the list, pick the new last one
-        if (this.currentSpriteId > lastSprite.id) {
+        if (this.currentSpriteName > lastSprite.name) {
           this.currentSpriteId = lastSprite.id;
-          this.currentSpriteName = lastSprite.name;
         }
         // but usually pick the one right below the one we just deleted
         else {
-          let nextSprite = this.sprites.find(spr => spr.id > this.currentSpriteId);
+          let nextSprite = this.sprites.find(spr => spr.name > this.currentSpriteName);
           this.currentSpriteId = nextSprite.id;
-          this.currentSpriteName = nextSprite.name;
         }
 
         this.refreshName();
