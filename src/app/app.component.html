@@ -1,13 +1,15 @@
 <h1>Sprite Maker</h1>
 
 <form>
-  <label for="sprite-picker">Sprite List</label>
+  <label for="sprite-picker">Sprites</label>
   <select name="sprite-picker" [(ngModel)]="currentSpriteId" (ngModelChange)="onSpritePickerChange($event)">
     <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
   </select>
   <button (click)="createSprite()">Create Sprite</button>
   <button (click)="copySprite()">Copy Sprite</button>
-  
+</form>
+
+<form>
   <label for="sprite-name">Name</label>
   <input type="text" name="sprite-name" [(ngModel)]="currentSpriteName"/>
   <button (click)="renameSprite(currentSpriteId, currentSpriteName)">Rename Sprite</button>
