@@ -6,6 +6,7 @@
     <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
   </select>
   <button (click)="createSprite()">Create Sprite</button>
+  <button (click)="copySprite()">Copy Sprite</button>
   
   <label for="sprite-name">Name</label>
   <input type="text" name="sprite-name" [(ngModel)]="currentSpriteName"/>
@@ -19,7 +20,7 @@
 </div>
 <button class="black-color-button color-button" (click)="selectedColor = '#000'"></button>
 <button class="yellow-color-button color-button" (click)="selectedColor = '#FF0'"></button>
-<button (click)="savePixels()">Save Sprite</button>
+<button (click)="savePixels()">Save Pixels</button>
 
 <table>
   <tr *ngFor="let x of edgeCount">

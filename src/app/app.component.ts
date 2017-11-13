@@ -21,10 +21,11 @@ export class AppComponent {
   constructor(private spriteMakerService: SpriteMakerService) {
     // populate spriteSubscription from the database
     this.spriteMakerService.getAllSprites().subscribe(sprs => {
-      this.sprites = sprs;
+      this.sprites = sprs.sort((a,b) => a.name > b.name ? 1 : -1);
       this.currentSpriteId = this.sprites[0].id;
 
-      this.refreshSprite();
+      this.refreshName();
+      this.refreshPixels();
     });
 
     if (this.pixelColors.length == 0) {
@@ -50,8 +51,8 @@ export class AppComponent {
 
   getVerilog: () => string = () => {
     let verilog = "      if (hcount == x && vcount == y) pixel <= " + this.makeVerilogColor(0,0) + ";";
-
-    let xIdx = 1;
+    
+    let xIdx = 0;
     let yIdx = 1;
 
     while (xIdx < this.EDGE) {
@@ -60,7 +61,7 @@ export class AppComponent {
         verilog = verilog 
           + "\n      else if (hcount == x + " 
           + xIdx 
-          + " && vcount == " 
+          + " && vcount == y + " 
           + yIdx + ") pixel <= " 
           + this.makeVerilogColor(xIdx,yIdx)
           + ";";
@@ -88,9 +89,33 @@ export class AppComponent {
   createSprite: () => void = () => {
     this.spriteMakerService.createSprite("untitled").subscribe(res => {
       this.currentSpriteId = res.record.id;
-      this.spriteMakerService.getAllSprites().subscribe(sprs => this.sprites = sprs);
+
+      this.spriteMakerService.getAllSprites().subscribe(sprs => {
+        this.sprites = sprs;
+        this.refreshName();
+      });
+
       this.spriteMakerService.initializePixels(res.record.id, this.EDGE * this.EDGE, "#000").subscribe(res => {
-        this.refreshSprite();
+        this.refreshPixels();
+      });
+    });
+  }
+
+  copySprite: () => void = () => {
+    this.spriteMakerService.createSprite("copy of " + this.currentSpriteName).subscribe(res => {
+      this.currentSpriteId = res.record.id;
+
+      this.spriteMakerService.getAllSprites().subscribe(sprs => {
+        this.sprites = sprs;
+        this.refreshName();
+      });
+
+      this.spriteMakerService.initializePixels(res.record.id, this.EDGE * this.EDGE, "#000").subscribe(res => {
+        this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
+          this.currentPixels = res.records;
+          res.records.forEach(pix => pix.color = this.pixelColors[pix.position]);
+          this.savePixels();
+        });
       });
     });
   }
@@ -99,6 +124,7 @@ export class AppComponent {
     this.spriteMakerService.deleteSprite(this.currentSpriteId).subscribe(res => {
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
         this.sprites = sprs;
+
         let lastSprite = this.sprites.reduce((acc, cur) => acc.id > cur.id ? acc : cur);
         // if this was the last sprite in the list, pick the new last one
         if (this.currentSpriteId > lastSprite.id) {
@@ -112,24 +138,10 @@ export class AppComponent {
           this.currentSpriteName = nextSprite.name;
         }
 
-        this.refreshSprite();
+        this.refreshName();
+        this.refreshPixels();
       })
     })
-  }
-
-  onSpritePickerChange: (event: Event) => void = (e) => {
-    this.refreshSprite();
-  }
-
-  private refreshSprite: () => void = () => {
-    this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
-    this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
-      this.currentPixels = res.records;
-
-      let orderedColors: string[] = [];
-      res.records.forEach(pix => orderedColors[pix.position] = pix.color);
-      this.pixelColors = orderedColors;
-    });
   }
 
   savePixels: () => void = () => {
@@ -137,5 +149,24 @@ export class AppComponent {
       this.currentPixels.find(p => p.position == idx).color = color;
     });
     this.spriteMakerService.savePixels(this.currentPixels).subscribe();
+  }
+
+  onSpritePickerChange: (event: Event) => void = (e) => {
+    this.refreshName();
+    this.refreshPixels();
+  }
+
+  private refreshName: () => void = () => {
+    this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
+  }
+
+  private refreshPixels: () => void = () => {
+    this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
+      this.currentPixels = res.records;
+
+      let orderedColors: string[] = [];
+      res.records.forEach(pix => orderedColors[pix.position] = pix.color);
+      this.pixelColors = orderedColors;
+    });
   }
 }
