@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Sprite, SpriteMakerService } from './sprite-maker.service';
+import { Sprite, Pixel, SpriteMakerService } from './sprite-maker.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -16,6 +16,7 @@ export class AppComponent {
   sprites: Sprite[];
   currentSpriteId: number;
   currentSpriteName: string;
+  currentPixels: Pixel[];
 
   constructor(private spriteMakerService: SpriteMakerService) {
     // populate spriteSubscription from the database
@@ -123,15 +124,18 @@ export class AppComponent {
   private refreshSprite: () => void = () => {
     this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
     this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
+      this.currentPixels = res.records;
+
       let orderedColors: string[] = [];
       res.records.forEach(pix => orderedColors[pix.position] = pix.color);
       this.pixelColors = orderedColors;
     });
   }
 
-  saveSprite = () => {
-    this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
-      console.log(res);
+  savePixels: () => void = () => {
+    this.pixelColors.forEach((color, idx) => {
+      this.currentPixels.find(p => p.position == idx).color = color;
     });
+    this.spriteMakerService.savePixels(this.currentPixels).subscribe();
   }
 }

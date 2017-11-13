@@ -9,6 +9,7 @@ export interface Sprite {
 }
 
 export interface Pixel {
+  id: number,
   spriteId: number,
   position: number,
   color: string
@@ -81,15 +82,19 @@ export class SpriteMakerService {
   public getPixelsForSprite: (spriteId: number) => Observable<GetPixelsForSpriteResponse> = (spriteId) => {
     let apiUrl = "http://kadauber.scripts.mit.edu/sprite-maker-api/pixel/readForSprite.php";
 
-    return this.http.get(apiUrl + "?id=" + spriteId).map(res => res.json() as GetPixelsForSpriteResponse);
+    return this.http.get(apiUrl + "?id=" + spriteId).map(res => {
+      return res.json() as GetPixelsForSpriteResponse
+    });
   }
 
-  public updatePixelsForSprite: (spriteId: number, pixelColors: string[]) => Observable<ServerResponse[]> = (spriteId, pixelColors) => {
-    let apiUrl = "http://kadauber.scripts.mit.edu/sprite-maker-api/pixel/updateForSprite.php";
+  public savePixels: (pixels: Pixel[]) => Observable<ServerResponse[]> = (pixels) => {
+    let apiUrl = "http://kadauber.scripts.mit.edu/sprite-maker-api/pixel/update.php";
 
     let reqs: Observable<ServerResponse>[] = [];
-    pixelColors.forEach((color, idx) => {
-      reqs.push(this.http.post(apiUrl, {spriteId: spriteId, position: idx, color: color}).map(res => res.json() as ServerResponse))
+    pixels.forEach(pix => {
+      reqs.push(this.http.post(apiUrl, {id: pix.id, spriteId: pix.spriteId, position: pix.position, color: pix.color}).map(res => {
+        return res.json() as ServerResponse
+      }));
     });
 
     return Observable.forkJoin(reqs);
