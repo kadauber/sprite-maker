@@ -50,34 +50,33 @@ export class AppComponent {
   }
 
   getVerilog: () => string = () => {
-    let verilog = "      if (hcount == x && vcount == y) pixel <= " + this.makeVerilogColor(0,0) + ";";
+    let verilog = "if (hcount == x && vcount == y) pixel <= " + this.makeVerilogColor(0,0) + ";";
     
-    let xIdx = 0;
-    let yIdx = 1;
+    let xIdx = 1;
+    let yIdx = 0;
 
-    while (xIdx < this.EDGE) {
-      while (yIdx < this.EDGE) {
+    while (yIdx < this.EDGE) {
+      while (xIdx < this.EDGE) {
 
         verilog = verilog 
-          + "\n      else if (hcount == x + " 
+          + "\nelse if (hcount == x + " 
           + xIdx 
           + " && vcount == y + " 
           + yIdx + ") pixel <= " 
           + this.makeVerilogColor(xIdx,yIdx)
           + ";";
-
-        yIdx++;
+        xIdx++;
       }
 
-      yIdx = 0;
-      xIdx++;
+      xIdx = 0;
+      yIdx++;
     }
 
-    return verilog + "\n      else pixel <= 12'h000;";
+    return verilog + "\nelse pixel <= 12'h000;";
   }
 
   private makeVerilogColor: (x:number, y:number) => string = (x: number, y: number) => {
-    return "12'h" + this.pixelColors[x * this.EDGE + y].substring(1);
+    return "12'h" + this.pixelColors[y * this.EDGE + x].substring(1);
   }
 
   renameSprite: (id: number, name: string) => void = (id: number, name: string) => {
