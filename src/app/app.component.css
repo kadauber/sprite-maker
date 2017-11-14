@@ -30,3 +30,7 @@ td {
     width: 20px;
     border: 1px solid white;
 }
+
+pre {
+    font-size: 2px;
+}
