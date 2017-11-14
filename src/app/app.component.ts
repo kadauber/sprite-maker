@@ -21,7 +21,7 @@ export class AppComponent {
   constructor(private spriteMakerService: SpriteMakerService) {
     // populate spriteSubscription from the database
     this.spriteMakerService.getAllSprites().subscribe(sprs => {
-      this.sprites = sprs.sort((a,b) => a.name > b.name ? 1 : -1);
+      this.refreshSpriteList(sprs);
       this.currentSpriteId = this.sprites[0].id;
 
       this.refreshName();
@@ -81,7 +81,7 @@ export class AppComponent {
 
   renameSprite: (id: number, name: string) => void = (id: number, name: string) => {
     this.spriteMakerService.renameSprite(this.currentSpriteId, this.currentSpriteName).subscribe(res => {
-      this.spriteMakerService.getAllSprites().subscribe(sprs => this.sprites = sprs);
+      this.spriteMakerService.getAllSprites().subscribe(sprs => this.refreshSpriteList(sprs));
     });
   }
 
@@ -90,7 +90,7 @@ export class AppComponent {
       this.currentSpriteId = res.record.id;
 
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
-        this.sprites = sprs;
+        this.refreshSpriteList(sprs);
         this.refreshName();
       });
 
@@ -105,7 +105,7 @@ export class AppComponent {
       this.currentSpriteId = res.record.id;
 
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
-        this.sprites = sprs;
+        this.refreshSpriteList(sprs);
         this.refreshName();
       });
 
@@ -122,7 +122,7 @@ export class AppComponent {
   deleteSprite: () => void = () => {
     this.spriteMakerService.deleteSprite(this.currentSpriteId).subscribe(res => {
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
-        this.sprites = sprs;
+        this.refreshSpriteList(sprs);
 
         let lastSprite = this.sprites.reduce((acc, cur) => acc.name > cur.name ? acc : cur);
         // if this was the last sprite in the list, pick the new last one
@@ -166,4 +166,8 @@ export class AppComponent {
       this.pixelColors = orderedColors;
     });
   }
+
+  private refreshSpriteList: (sprs: Sprite[]) => void = (sprs) => {
+    this.sprites = sprs.sort((a,b) => a.name > b.name ? 1 : -1);    
+  } 
 }
