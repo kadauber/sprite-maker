@@ -13,7 +13,7 @@
   <label for="sprite-name">Name</label>
   <input type="text" name="sprite-name" [(ngModel)]="currentSpriteName"/>
   <button (click)="renameSprite(currentSpriteId, currentSpriteName)">Rename Sprite</button>
-  <button (click)="deleteSprite(currentSpriteId)">Delete Sprite</button>
+  <button (click)="deleteSprite()">Delete Sprite</button>
 </form>
 
 <button disabled id="selected-color-display" [style.background-color]="selectedColor" class="input-color-button color-button"></button>
