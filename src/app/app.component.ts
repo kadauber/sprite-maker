@@ -222,6 +222,14 @@ export class AppComponent {
     this.refreshCurrentPixels();
   }
 
+  onInnerSpriteChange: (event: Event) => void = (e) => {
+    this.refreshInnerSpritePixels();
+  }
+
+  onOuterSpriteChange: (event: Event) => void = (e) => {
+    this.refreshOuterSpritePixels();
+  }
+  
   private refreshName: () => void = () => {
     this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
   }

@@ -36,12 +36,12 @@
   <label for="module-name">Module Name</label>
   <input name="module-name" type="text" [(ngModel)]="moduleName"/>
   <label for="inner-sprite-picker">Inner Sprite</label>
-  <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId">
-    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}" (ngModelChange)="refreshInnerSpritePixels()">{{ sprite.name }}</option>
+  <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId" (ngModelChange)="onInnerSpriteChange($event)">
+    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
   </select>
   <label for="outer-sprite-picker">Outer Sprite</label>
-  <select name="outer-sprite-picker" [(ngModel)]="outerSpriteId">
-    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}" (ngModelChange)="refreshOuterSpritePixels()">{{ sprite.name }}</option>
+  <select name="outer-sprite-picker" [(ngModel)]="outerSpriteId" (ngModelChange)="onOuterSpriteChange($event)">
+    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
   </select>
 </form>
 
