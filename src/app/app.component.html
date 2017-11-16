@@ -27,8 +27,8 @@
 <button (click)="rotatePixels()">Rotate Pixels</button>
 
 <table>
-  <tr *ngFor="let x of edgeCount">
-    <td *ngFor="let y of edgeCount" [style.background-color]="getPixelColor(currentPixels,x,y)" (mouseenter)="setPixelColor($event,currentPixels,x,y)" (mousedown)="setPixelColor($event,currentPixels,x,y)"></td>
+  <tr *ngFor="let row of edgeCount">
+    <td *ngFor="let col of edgeCount" [style.background-color]="getPixelColor(currentPixels,row,col)" (mouseenter)="setPixelColor($event,currentPixels,row,col)" (mousedown)="setPixelColor($event,currentPixels,row,col)"></td>
   </tr>
 </table>
 

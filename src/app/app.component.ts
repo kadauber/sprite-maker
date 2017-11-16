@@ -51,51 +51,52 @@ export class AppComponent {
     }
   }
 
-  getPixelColor: (pixels: Pixel[], x: number, y: number) => string = (pixels, x, y) => {
+  getPixelColor: (pixels: Pixel[], row: number, col: number) => string = (pixels, row, col) => {
     if (pixels) {
-      return pixels.find(pix => pix.position == x * this.EDGE + y).color;      
+      return pixels.find(pix => pix.position == row * this.EDGE + col).color;
     } else {
       return "#000";
     }
   }
 
-  setPixelColor: ($event: MouseEvent, pixels, x: number, y: number) => void = ($event, pixels, x, y) => {
+  setPixelColor: ($event: MouseEvent, pixels, row: number, col: number) => void = ($event, pixels, row, col) => {
     if ($event.buttons == 1) {
-      pixels.find(pix => pix.position == x * this.EDGE + y).color = this.selectedColor;
+      pixels.find(pix => pix.position == row * this.EDGE + col).color = this.selectedColor;
     }
   }
 
   getSpriteVerilog: (Pixels: Pixel[], indent: number) => string = (pixels, indent = 0) => {
-    let verilog = " ".repeat(indent) + "if (hcount == x && vcount == y) pixel <= " + this.makeVerilogColor(pixels,0,0) + ";\n";
-    
-    let xIdx = 1;
-    let yIdx = 0;
+    let rowIdx = 0;
+    let colIdx = 0;
 
-    while (yIdx < this.EDGE) {
-      while (xIdx < this.EDGE) {
+    let verilog = " ".repeat(indent) + "if (vcount == y && hcount == x) pixel <= " + this.makeVerilogColor(pixels,rowIdx,colIdx) + ";\n";    
+    colIdx++;
+
+    while (rowIdx < this.EDGE) {
+      while (colIdx < this.EDGE) {
 
         let line = 
           " ".repeat(indent) 
-          + "else if (hcount == x + "
-          + xIdx 
-          + " && vcount == y + " 
-          + yIdx + ") pixel <= " 
-          + this.makeVerilogColor(pixels,xIdx,yIdx)
+          + "else if (vcount == y + "
+          + rowIdx 
+          + " && hcount == x + " 
+          + colIdx + ") pixel <= " 
+          + this.makeVerilogColor(pixels,rowIdx,colIdx)
           + ";\n";
 
           verilog = verilog + line;
-        xIdx++;
+        colIdx++;
       }
 
-      xIdx = 0;
-      yIdx++;
+      colIdx = 0;
+      rowIdx++;
     }
 
     return verilog + " ".repeat(indent) + "else pixel <= 12'h000;";
   }
 
-  private makeVerilogColor: (pixels: Pixel[], x:number, y:number) => string = (pixels: Pixel[], x: number, y: number) => {
-    return "12'h" + this.getPixelColor(pixels,x,y).substring(1);
+  private makeVerilogColor: (pixels: Pixel[], row:number, col:number) => string = (pixels: Pixel[], row: number, col: number) => {
+    return "12'h" + this.getPixelColor(pixels,row,col).substring(1);
   }
 
   renameSprite: (id: number, name: string) => void = (id: number, name: string) => {
@@ -186,7 +187,8 @@ export class AppComponent {
   }
 
   rotatePixels: () => void = () => {
-    // position: x * EDGE + y
+    // position: row * EDGE + col
+    // row,col
     // 0,0 -> 15,0 (0->240)
     // 0,15 -> 0,0 (15->0)
     // 15,0 -> 15,15 (240->255)
@@ -195,19 +197,23 @@ export class AppComponent {
     // 0,1 -> 14,0
     // 0,2 -> 13,0
     // 1,1 -> 14,1
+    // 1,13 -> 2,1
     // 14,13 -> 2,14
 
-    // source x = 15-old y
-    // source y = old x
+    let newPositionToColorMap: Map<number,string> = new Map<number,string>();
 
     this.currentPixels.forEach(pix => {
-      let x = Math.floor(pix.position / this.EDGE);
-      let y = pix.position - x * this.EDGE;
+      let row = Math.floor(pix.position / this.EDGE);
+      let col = pix.position - row * this.EDGE;
       
-      let sourceX = y;
-      let sourceY = 15 - x;
-      
-      pix.color = this.getPixelColor(this.currentPixels,sourceX,sourceY);
+      let newRow = 15 - col;
+      let newCol = row;
+
+      newPositionToColorMap.set(newRow * this.EDGE + newCol, pix.color);
+    });
+
+    newPositionToColorMap.forEach((newColor,newPosition) => {
+      this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
     });
   }
 
