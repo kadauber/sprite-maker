@@ -1,5 +1,4 @@
 <h1>Sprite Maker</h1>
-
 <form>
   <label for="sprite-picker">Sprites</label>
   <select name="sprite-picker" [(ngModel)]="currentSpriteId" (ngModelChange)="onSpritePickerChange($event)">
@@ -16,6 +15,8 @@
   <button (click)="deleteSprite()">Delete Sprite</button>
 </form>
 
+<p>{{ status }}</p>
+
 <button disabled id="selected-color-display" [style.background-color]="selectedColor" class="input-color-button color-button"></button>
 <div class="selected-color">
   <input type="text" [(ngModel)]="selectedColor"/>
@@ -23,13 +24,49 @@
 <button class="black-color-button color-button" (click)="selectedColor = '#000'"></button>
 <button class="yellow-color-button color-button" (click)="selectedColor = '#FF0'"></button>
 <button (click)="savePixels()">Save Pixels</button>
+<button (click)="rotatePixels()">Rotate Pixels</button>
 
 <table>
   <tr *ngFor="let x of edgeCount">
-    <td *ngFor="let y of edgeCount" [style.background-color]="pixelColors[x * EDGE + y]" (dragover)="setPixelColor(x,y)" (click)="setPixelColor(x,y)" (drag)="setPixelColor(x,y)"></td>
+    <td *ngFor="let y of edgeCount" [style.background-color]="getPixelColor(currentPixels,x,y)" (mouseenter)="setPixelColor($event,currentPixels,x,y)" (mousedown)="setPixelColor($event,currentPixels,x,y)"></td>
   </tr>
 </table>
 
+<form>
+  <label for="module-name">Module Name</label>
+  <input name="module-name" type="text" [(ngModel)]="moduleName"/>
+  <label for="inner-sprite-picker">Inner Sprite</label>
+  <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId">
+    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}" (ngModelChange)="refreshInnerSpritePixels()">{{ sprite.name }}</option>
+  </select>
+  <label for="outer-sprite-picker">Outer Sprite</label>
+  <select name="outer-sprite-picker" [(ngModel)]="outerSpriteId">
+    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}" (ngModelChange)="refreshOuterSpritePixels()">{{ sprite.name }}</option>
+  </select>
+</form>
+
+<h2>Current Module</h2>
 <pre>
-{{getVerilog()}}
+module {{ moduleName }} (
+    input clk,
+    input reset,
+    input inner_graphics,
+    input [10:0] hcount,
+    input [9:0] vcount,
+    input [10:0] x,
+    input [9:0] y,
+    output reg [11:0] pixel
+    );
+
+    always @(posedge clk) begin
+        if (inner_graphics) begin
+{{ getSpriteVerilog(innerSpritePixels, 12) }}
+        end else begin
+{{ getSpriteVerilog(outerSpritePixels, 12) }}
+        end
+    end
+endmodule
 </pre>
+
+<h2>Current Sprite</h2>
+<pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
