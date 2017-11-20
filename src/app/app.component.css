@@ -20,6 +20,18 @@
     background-color: #FFFF00;
 }
 
+.white-color-button {
+    background-color: #FFFFFE;
+}
+
+.blue-color-button {
+    background-color: blue;
+}
+
+.magenta-color-button {
+    background-color: magenta;
+}
+
 table {
     margin-top: 5px;
     border-collapse: collapse;

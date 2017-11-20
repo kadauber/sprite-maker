@@ -10,7 +10,7 @@
 
 <form>
   <label for="sprite-name">Name</label>
-  <input type="text" name="sprite-name" [(ngModel)]="currentSpriteName"/>
+  <input type="text" name="sprite-name" [(ngModel)]="currentSpriteName" />
   <button (click)="renameSprite(currentSpriteId, currentSpriteName)">Rename Sprite</button>
   <button (click)="deleteSprite()">Delete Sprite</button>
 </form>
@@ -19,34 +19,47 @@
 
 <button disabled id="selected-color-display" [style.background-color]="selectedColor" class="input-color-button color-button"></button>
 <div class="selected-color">
-  <input type="text" [(ngModel)]="selectedColor"/>
+  <input type="text" [(ngModel)]="selectedColor" />
 </div>
 <button class="black-color-button color-button" (click)="selectedColor = '#000'"></button>
+<button class="white-color-button color-button" (click)="selectedColor = '#FFF'"></button>
 <button class="yellow-color-button color-button" (click)="selectedColor = '#FF0'"></button>
+<button class="blue-color-button color-button" (click)="selectedColor = '#00F'"></button>
+<button class="magenta-color-button color-button" (click)="selectedColor = '#F0F'"></button>
 <button (click)="savePixels()">Save Pixels</button>
 <button (click)="rotatePixels()">Rotate Pixels</button>
+<button (click)="shiftPixelsLeft()">Shift Left</button>
+<button (click)="shiftPixelsUp()">Shift Up</button>
+<button (click)="shiftPixelsDown()">Shift Down</button>
+<button (click)="shiftPixelsRight()">Shift Right</button>
 
 <table>
   <tr *ngFor="let row of edgeCount">
-    <td *ngFor="let col of edgeCount" [style.background-color]="getPixelColor(currentPixels,row,col)" (mouseenter)="setPixelColor($event,currentPixels,row,col)" (mousedown)="setPixelColor($event,currentPixels,row,col)"></td>
+    <td *ngFor="let col of edgeCount" [style.background-color]="getPixelColor(currentPixels,row,col)" (mouseenter)="setPixelColor($event,currentPixels,row,col)"
+      (mousedown)="setPixelColor($event,currentPixels,row,col)"></td>
   </tr>
 </table>
 
-<form>
-  <label for="module-name">Module Name</label>
-  <input name="module-name" type="text" [(ngModel)]="moduleName"/>
-  <label for="inner-sprite-picker">Inner Sprite</label>
-  <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId" (ngModelChange)="onInnerSpriteChange($event)">
-    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
-  </select>
-  <label for="outer-sprite-picker">Outer Sprite</label>
-  <select name="outer-sprite-picker" [(ngModel)]="outerSpriteId" (ngModelChange)="onOuterSpriteChange($event)">
-    <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
-  </select>
-</form>
+<button (click)="codeShowing = 'SPRITE'">Show Sprite Code</button>
+<button (click)="codeShowing = 'MODULE'">Show Module Code</button>
 
-<h2>Current Module</h2>
-<pre>
+<div [hidden]="codeShowing != 'MODULE'">
+  <h2>Current Module</h2>
+
+  <form>
+    <label for="module-name">Module Name</label>
+    <input name="module-name" type="text" [(ngModel)]="moduleName" />
+    <label for="inner-sprite-picker">Inner Sprite</label>
+    <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId" (ngModelChange)="onInnerSpriteChange($event)">
+      <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
+    </select>
+    <label for="outer-sprite-picker">Outer Sprite</label>
+    <select name="outer-sprite-picker" [(ngModel)]="outerSpriteId" (ngModelChange)="onOuterSpriteChange($event)">
+      <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
+    </select>
+  </form>
+
+  <pre>
 module {{ moduleName }} (
     input clk,
     input reset,
@@ -67,6 +80,9 @@ module {{ moduleName }} (
     end
 endmodule
 </pre>
+</div>
 
-<h2>Current Sprite</h2>
-<pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
+<div [hidden]="codeShowing != 'SPRITE'">
+  <h2>Current Sprite</h2>
+  <pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
+</div>

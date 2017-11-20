@@ -25,6 +25,8 @@ export class AppComponent {
 
   status: string = "Ready";
 
+  codeShowing: string = 'SPRITE';
+
   constructor(private spriteMakerService: SpriteMakerService) {
     this.status = "Starting up...";
 
@@ -42,7 +44,7 @@ export class AppComponent {
 
       this.status = "Ready";
     });
-    
+
     // initialize a list of numbers 0..EDGE to iterate on
     let edgeIdx = 0;
     while (edgeIdx < this.EDGE) {
@@ -69,22 +71,22 @@ export class AppComponent {
     let rowIdx = 0;
     let colIdx = 0;
 
-    let verilog = " ".repeat(indent) + "if (vcount == y && hcount == x) pixel <= " + this.makeVerilogColor(pixels,rowIdx,colIdx) + ";\n";    
+    let verilog = " ".repeat(indent) + "if (vcount == y && hcount == x) pixel <= " + this.makeVerilogColor(pixels, rowIdx, colIdx) + ";\n";
     colIdx++;
 
     while (rowIdx < this.EDGE) {
       while (colIdx < this.EDGE) {
 
-        let line = 
-          " ".repeat(indent) 
+        let line =
+          " ".repeat(indent)
           + "else if (vcount == y + "
-          + rowIdx 
-          + " && hcount == x + " 
-          + colIdx + ") pixel <= " 
-          + this.makeVerilogColor(pixels,rowIdx,colIdx)
+          + rowIdx
+          + " && hcount == x + "
+          + colIdx + ") pixel <= "
+          + this.makeVerilogColor(pixels, rowIdx, colIdx)
           + ";\n";
 
-          verilog = verilog + line;
+        verilog = verilog + line;
         colIdx++;
       }
 
@@ -95,8 +97,8 @@ export class AppComponent {
     return verilog + " ".repeat(indent) + "else pixel <= 12'h000;";
   }
 
-  private makeVerilogColor: (pixels: Pixel[], row:number, col:number) => string = (pixels: Pixel[], row: number, col: number) => {
-    return "12'h" + this.getPixelColor(pixels,row,col).substring(1);
+  private makeVerilogColor: (pixels: Pixel[], row: number, col: number) => string = (pixels: Pixel[], row: number, col: number) => {
+    return "12'h" + this.getPixelColor(pixels, row, col).substring(1);
   }
 
   renameSprite: (id: number, name: string) => void = (id: number, name: string) => {
@@ -129,10 +131,13 @@ export class AppComponent {
   }
 
   copySprite: () => void = () => {
+
+    let oldSpriteId = this.currentSpriteId;
+
     this.status = "Copying sprite";
+
     this.spriteMakerService.createSprite("copy of " + this.currentSpriteName).subscribe(res => {
       this.currentSpriteId = res.record.id;
-
       this.status = "Refreshing sprite list";
       this.spriteMakerService.getAllSprites().subscribe(sprs => {
         this.refreshSpriteList(sprs);
@@ -142,13 +147,22 @@ export class AppComponent {
 
       this.status = "Initializing pixels";
       this.spriteMakerService.initializePixels(res.record.id, this.EDGE * this.EDGE, "#000").subscribe(res => {
-        
+
         this.status = "Copying pixels";
 
         this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
-          this.currentPixels = res.records;
-          this.savePixels();
-          this.status = "Ready";
+          this.currentPixels = res.records; // a bunch of new black pixels
+
+          this.spriteMakerService.getPixelsForSprite(oldSpriteId).subscribe(res => {
+            res.records.forEach(oldPix => {
+              this.currentPixels.find(curPix => oldPix.position == curPix.position).color = oldPix.color;
+            });
+
+            this.savePixels();
+
+            this.status = "Ready";
+          });
+
         });
       });
     });
@@ -200,19 +214,103 @@ export class AppComponent {
     // 1,13 -> 2,1
     // 14,13 -> 2,14
 
-    let newPositionToColorMap: Map<number,string> = new Map<number,string>();
+    let newPositionToColorMap: Map<number, string> = new Map<number, string>();
 
     this.currentPixels.forEach(pix => {
       let row = Math.floor(pix.position / this.EDGE);
       let col = pix.position - row * this.EDGE;
-      
+
       let newRow = 15 - col;
       let newCol = row;
 
       newPositionToColorMap.set(newRow * this.EDGE + newCol, pix.color);
     });
 
-    newPositionToColorMap.forEach((newColor,newPosition) => {
+    newPositionToColorMap.forEach((newColor, newPosition) => {
+      this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
+    });
+  }
+
+  shiftPixelsLeft: () => void = () => {
+    let newPositionToColorMap: Map<number, string> = new Map<number, string>();
+
+    for (let row = 0; row < this.EDGE; row++) {
+      for (let col = 0; col < this.EDGE; col++) {
+
+        let position = row * this.EDGE + col;
+
+        if (col == 15) {
+          newPositionToColorMap.set(position, "#000");
+        } else {
+          newPositionToColorMap.set(position, this.currentPixels.find(pix => pix.position == position + 1).color);
+        }
+      }
+    }
+
+    newPositionToColorMap.forEach((newColor, newPosition) => {
+      this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
+    });
+  }
+
+  shiftPixelsUp: () => void = () => {
+    let newPositionToColorMap: Map<number, string> = new Map<number, string>();
+
+    for (let row = 0; row < this.EDGE; row++) {
+      for (let col = 0; col < this.EDGE; col++) {
+
+        let position = row * this.EDGE + col;
+
+        if (row == 15) {
+          newPositionToColorMap.set(position, "#000");
+        } else {
+          newPositionToColorMap.set(position, this.currentPixels.find(pix => pix.position == position + 16).color);
+        }
+      }
+    }
+
+    newPositionToColorMap.forEach((newColor, newPosition) => {
+      this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
+    });
+  }
+
+  shiftPixelsDown: () => void = () => {
+    let newPositionToColorMap: Map<number, string> = new Map<number, string>();
+
+    for (let row = 0; row < this.EDGE; row++) {
+      for (let col = 0; col < this.EDGE; col++) {
+
+        let position = row * this.EDGE + col;
+
+        if (row == 0) {
+          newPositionToColorMap.set(position, "#000");
+        } else {
+          newPositionToColorMap.set(position, this.currentPixels.find(pix => pix.position == position - 16).color);
+        }
+      }
+    }
+
+    newPositionToColorMap.forEach((newColor, newPosition) => {
+      this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
+    });
+  }
+
+  shiftPixelsRight: () => void = () => {
+    let newPositionToColorMap: Map<number, string> = new Map<number, string>();
+
+    for (let row = 0; row < this.EDGE; row++) {
+      for (let col = 0; col < this.EDGE; col++) {
+
+        let position = row * this.EDGE + col;
+
+        if (col == 0) {
+          newPositionToColorMap.set(position, "#000");
+        } else {
+          newPositionToColorMap.set(position, this.currentPixels.find(pix => pix.position == position - 1).color);
+        }
+      }
+    }
+
+    newPositionToColorMap.forEach((newColor, newPosition) => {
       this.currentPixels.find(pix => pix.position == newPosition).color = newColor;
     });
   }
@@ -229,7 +327,7 @@ export class AppComponent {
   onOuterSpriteChange: (event: Event) => void = (e) => {
     this.refreshOuterSpritePixels();
   }
-  
+
   private refreshName: () => void = () => {
     this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
   }
@@ -262,6 +360,6 @@ export class AppComponent {
   }
 
   private refreshSpriteList: (sprs: Sprite[]) => void = (sprs) => {
-    this.sprites = sprs.sort((a,b) => a.name > b.name ? 1 : -1);    
-  } 
+    this.sprites = sprs.sort((a, b) => a.name > b.name ? 1 : -1);
+  }
 }
