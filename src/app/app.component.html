@@ -26,12 +26,13 @@
 <button class="yellow-color-button color-button" (click)="selectedColor = '#FF0'"></button>
 <button class="blue-color-button color-button" (click)="selectedColor = '#00F'"></button>
 <button class="magenta-color-button color-button" (click)="selectedColor = '#F0F'"></button>
+<button class="light-orange-color-button color-button" (click)="selectedColor = '#FBA'"></button>
 <button (click)="savePixels()">Save Pixels</button>
 <button (click)="rotatePixels()">Rotate Pixels</button>
-<button (click)="shiftPixelsLeft()">Shift Left</button>
-<button (click)="shiftPixelsUp()">Shift Up</button>
-<button (click)="shiftPixelsDown()">Shift Down</button>
-<button (click)="shiftPixelsRight()">Shift Right</button>
+<button (click)="shiftPixelsLeft()">&larr;</button>
+<button (click)="shiftPixelsUp()">&uarr;</button>
+<button (click)="shiftPixelsDown()">&darr;</button>
+<button (click)="shiftPixelsRight()">&rarr;</button>
 
 <table>
   <tr *ngFor="let row of edgeCount">

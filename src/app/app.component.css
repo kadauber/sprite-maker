@@ -32,6 +32,10 @@
     background-color: magenta;
 }
 
+.light-orange-color-button {
+    background-color: #F0B0A0;
+}
+
 table {
     margin-top: 5px;
     border-collapse: collapse;
@@ -44,5 +48,5 @@ td {
 }
 
 pre {
-    font-size: 2px;
+    font-size: 8px;
 }
