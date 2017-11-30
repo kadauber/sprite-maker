@@ -81,7 +81,7 @@ export class AppComponent {
     }
   }
 
-  getSpriteVerilog: (Pixels: Pixel[], indent: number) => string = (pixels, indent = 0, edge = this.EDGE) => {
+  getSpriteVerilog: (Pixels: Pixel[], indent: number, edge: number) => string = (pixels, indent = 0, edge) => {
     let rowIdx = 0;
     let colIdx = 0;
 

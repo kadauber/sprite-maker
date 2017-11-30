@@ -48,7 +48,7 @@
 
 <div [hidden]="codeShowing != 'SPRITE'">
   <h2>Current Sprite</h2>
-  <pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
+  <pre>{{ getSpriteVerilog(currentPixels, 0, 16) }}</pre>
 </div>
 
 <div [hidden]="codeShowing != 'ONE_SPRITE_MODULE'">
@@ -75,7 +75,7 @@
     );
 
     always @(posedge clk) begin
-{{ getSpriteVerilog(oneSpriteModuleSpritePixels, 8) }}
+{{ getSpriteVerilog(oneSpriteModuleSpritePixels, 8, 16) }}
     end
 endmodule</pre>
 </div>
@@ -109,13 +109,12 @@ endmodule</pre>
 
     always @(posedge clk) begin
         if (inner_graphics) begin
-{{ getSpriteVerilog(innerSpritePixels, 12) }}
+{{ getSpriteVerilog(innerSpritePixels, 12, 16) }}
         end else begin
-{{ getSpriteVerilog(outerSpritePixels, 12) }}
+{{ getSpriteVerilog(outerSpritePixels, 12, 16) }}
         end
     end
-endmodule
-</pre>
+endmodule</pre>
 </div>
 
 <div [hidden]="codeShowing != 'CHAR_SPRITE_MODULE'">
@@ -146,6 +145,5 @@ endmodule
     always @(posedge clk) begin
 {{ getSpriteVerilog(charSpritePixels, 8, 8) }}
     end
-endmodule
-  </pre>
+endmodule</pre>
 </div>
