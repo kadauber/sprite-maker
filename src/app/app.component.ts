@@ -27,9 +27,13 @@ export class AppComponent {
   innerSpritePixels: Pixel[];
   outerSpritePixels: Pixel[];
 
+  charSpriteModuleName: string = "";
+  charSpriteId: number;
+  charSpritePixels: Pixel[];
+
   status: string = "Ready";
 
-  codeShowing: string = 'ONE_SPRITE_MODULE';
+  codeShowing: string = 'CHAR_SPRITE_MODULE';
 
   constructor(private spriteMakerService: SpriteMakerService) {
     this.status = "Starting up...";
@@ -41,6 +45,7 @@ export class AppComponent {
       this.oneSpriteModuleSpriteId = this.sprites[0].id;
       this.innerSpriteId = this.sprites[0].id;
       this.outerSpriteId = this.sprites[1].id;
+      this.charSpriteId = this.sprites[0].id;
 
       this.refreshName();
       this.refreshCurrentPixels();
@@ -48,6 +53,8 @@ export class AppComponent {
       this.refreshOneSpriteModuleSpritePixels();
       this.refreshInnerSpritePixels();
       this.refreshOuterSpritePixels();
+      this.refreshCharSpriteModuleName();
+      this.refreshCharSpritePixels();
 
       this.status = "Ready";
     });
@@ -74,15 +81,15 @@ export class AppComponent {
     }
   }
 
-  getSpriteVerilog: (Pixels: Pixel[], indent: number) => string = (pixels, indent = 0) => {
+  getSpriteVerilog: (Pixels: Pixel[], indent: number) => string = (pixels, indent = 0, edge = this.EDGE) => {
     let rowIdx = 0;
     let colIdx = 0;
 
     let verilog = " ".repeat(indent) + "if (vcount == y && hcount == x) pixel <= " + this.makeVerilogColor(pixels, rowIdx, colIdx) + ";\n";
     colIdx++;
 
-    while (rowIdx < this.EDGE) {
-      while (colIdx < this.EDGE) {
+    while (rowIdx < edge) {
+      while (colIdx < edge) {
 
         let line =
           " ".repeat(indent)
@@ -340,6 +347,11 @@ export class AppComponent {
     this.refreshOuterSpritePixels();
   }
 
+  onCharSpriteChange: (event: Event) => void = (e) => {
+    this.refreshCharSpriteModuleName();
+    this.refreshCharSpritePixels();
+  }
+
   private refreshName: () => void = () => {
     this.currentSpriteName = this.sprites.find(s => s.id == this.currentSpriteId).name;
   }
@@ -379,6 +391,18 @@ export class AppComponent {
     this.spriteMakerService.getPixelsForSprite(this.outerSpriteId).subscribe(res => {
       this.outerSpritePixels = res.records;
 
+      this.status = "Ready";
+    });
+  }
+
+  private refreshCharSpriteModuleName: () => void = () => {
+    this.charSpriteModuleName = this.sprites.find(s => s.id == this.charSpriteId).name;
+  }
+
+  private refreshCharSpritePixels: () => void = () => {
+    this.status = "Refreshing char sprite pixels";
+    this.spriteMakerService.getPixelsForSprite(this.charSpriteId).subscribe(res => {
+      this.charSpritePixels = res.records;
       this.status = "Ready";
     });
   }

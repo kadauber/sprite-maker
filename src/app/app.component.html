@@ -41,9 +41,10 @@
   </tr>
 </table>
 
-<button (click)="codeShowing = 'SPRITE'">Show Sprite Code</button>
-<button (click)="codeShowing = 'ONE_SPRITE_MODULE'">Show One Sprite Module Code</button>
-<button (click)="codeShowing = 'TWO_SPRITE_MODULE'">Show Two Sprite Module Code</button>
+<button (click)="codeShowing = 'SPRITE'">Sprite Code</button>
+<button (click)="codeShowing = 'ONE_SPRITE_MODULE'">One Sprite Module Code</button>
+<button (click)="codeShowing = 'TWO_SPRITE_MODULE'">Two Sprite Module Code</button>
+<button (click)="codeShowing = 'CHAR_SPRITE_MODULE'">Character Sprite Module Code</button>
 
 <div [hidden]="codeShowing != 'SPRITE'">
   <h2>Current Sprite</h2>
@@ -115,4 +116,36 @@ endmodule</pre>
     end
 endmodule
 </pre>
+</div>
+
+<div [hidden]="codeShowing != 'CHAR_SPRITE_MODULE'">
+  <h2>Character Sprite Module</h2>
+
+  <form>
+    <label for="char-sprite-module">Module Name</label>
+    <input name="char-sprite-module-name" type="text" [(ngModel)]="charSpriteModuleName" />
+    <label for="char-sprite-picker">Sprite</label>
+    <select name="char-sprite-picker" [(ngModel)]="charSpriteId" (ngModelChange)="onCharSpriteChange($event)">
+      <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
+    </select>
+    <button (click)="charSpriteModuleName = charSpriteModuleName.replace(' ', '_')">spaces &rarr; _s</button>
+    <button (click)="charSpriteModuleName = charSpriteModuleName.replace(' ', '')">delete spaces</button>
+  </form>
+
+  <pre>module {{ charSpriteModuleName }} (
+    input clk,
+    input reset,
+    input inner_graphics,
+    input [10:0] hcount,
+    input [9:0] vcount,
+    input [10:0] x,
+    input [9:0] y,
+    output reg [11:0] pixel
+    );
+
+    always @(posedge clk) begin
+{{ getSpriteVerilog(charSpritePixels, 8, 8) }}
+    end
+endmodule
+  </pre>
 </div>
