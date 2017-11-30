@@ -42,14 +42,49 @@
 </table>
 
 <button (click)="codeShowing = 'SPRITE'">Show Sprite Code</button>
-<button (click)="codeShowing = 'MODULE'">Show Module Code</button>
+<button (click)="codeShowing = 'ONE_SPRITE_MODULE'">Show One Sprite Module Code</button>
+<button (click)="codeShowing = 'TWO_SPRITE_MODULE'">Show Two Sprite Module Code</button>
 
-<div [hidden]="codeShowing != 'MODULE'">
-  <h2>Current Module</h2>
+<div [hidden]="codeShowing != 'SPRITE'">
+  <h2>Current Sprite</h2>
+  <pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
+</div>
+
+<div [hidden]="codeShowing != 'ONE_SPRITE_MODULE'">
+  <h2>One Sprite Module</h2>
 
   <form>
-    <label for="module-name">Module Name</label>
-    <input name="module-name" type="text" [(ngModel)]="moduleName" />
+    <label for="one-sprite-module-name">Module Name</label>
+    <input name="one-sprite-module-name" type="text" [(ngModel)]="oneSpriteModuleName" />
+    <label for="one-sprite-module-sprite-picker">Sprite</label>
+    <select name="one-sprite-module-sprite-picker" [(ngModel)]="oneSpriteModuleSpriteId" (ngModelChange)="onOneSpriteModuleSpriteChange($event)">
+      <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
+    </select>
+  </form>
+
+<pre>module {{ oneSpriteModuleName }} (
+    input clk,
+    input reset,
+    input inner_graphics,
+    input [10:0] hcount,
+    input [9:0] vcount,
+    input [10:0] x,
+    input [9:0] y,
+    output reg [11:0] pixel
+    );
+
+    always @(posedge clk) begin
+{{ getSpriteVerilog(oneSpriteModuleSpritePixels, 8) }}
+    end
+endmodule</pre>
+</div>
+
+<div [hidden]="codeShowing != 'TWO_SPRITE_MODULE'">
+  <h2>Two Sprite Module</h2>
+
+  <form>
+    <label for="two-sprite-module-name">Module Name</label>
+    <input name="two-sprite-module-name" type="text" [(ngModel)]="twoSpriteModuleName" />
     <label for="inner-sprite-picker">Inner Sprite</label>
     <select name="inner-sprite-picker" [(ngModel)]="innerSpriteId" (ngModelChange)="onInnerSpriteChange($event)">
       <option *ngFor="let sprite of sprites" value="{{ sprite.id }}">{{ sprite.name }}</option>
@@ -60,8 +95,7 @@
     </select>
   </form>
 
-  <pre>
-module {{ moduleName }} (
+  <pre>module {{ twoSpriteModuleName }} (
     input clk,
     input reset,
     input inner_graphics,
@@ -81,9 +115,4 @@ module {{ moduleName }} (
     end
 endmodule
 </pre>
-</div>
-
-<div [hidden]="codeShowing != 'SPRITE'">
-  <h2>Current Sprite</h2>
-  <pre>{{ getSpriteVerilog(currentPixels, 0) }}</pre>
 </div>

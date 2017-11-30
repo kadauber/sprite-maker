@@ -17,7 +17,11 @@ export class AppComponent {
   currentSpriteName: string;
   currentPixels: Pixel[];
 
-  moduleName: string = "";
+  oneSpriteModuleName: string = "";
+  oneSpriteModuleSpriteId: number;
+  oneSpriteModuleSpritePixels: Pixel[];
+
+  twoSpriteModuleName: string = "";
   innerSpriteId: number;
   outerSpriteId: number;
   innerSpritePixels: Pixel[];
@@ -25,7 +29,7 @@ export class AppComponent {
 
   status: string = "Ready";
 
-  codeShowing: string = 'SPRITE';
+  codeShowing: string = 'ONE_SPRITE_MODULE';
 
   constructor(private spriteMakerService: SpriteMakerService) {
     this.status = "Starting up...";
@@ -34,11 +38,14 @@ export class AppComponent {
     this.spriteMakerService.getAllSprites().subscribe(sprs => {
       this.refreshSpriteList(sprs);
       this.currentSpriteId = this.sprites[0].id;
+      this.oneSpriteModuleSpriteId = this.sprites[0].id;
       this.innerSpriteId = this.sprites[0].id;
       this.outerSpriteId = this.sprites[1].id;
 
       this.refreshName();
       this.refreshCurrentPixels();
+      this.refreshOneSpriteModuleName();
+      this.refreshOneSpriteModuleSpritePixels();
       this.refreshInnerSpritePixels();
       this.refreshOuterSpritePixels();
 
@@ -320,6 +327,11 @@ export class AppComponent {
     this.refreshCurrentPixels();
   }
 
+  onOneSpriteModuleSpriteChange: (event: Event) => void = (e) => {
+    this.refreshOneSpriteModuleName();
+    this.refreshOneSpriteModuleSpritePixels();
+  }
+
   onInnerSpriteChange: (event: Event) => void = (e) => {
     this.refreshInnerSpritePixels();
   }
@@ -337,6 +349,18 @@ export class AppComponent {
     this.spriteMakerService.getPixelsForSprite(this.currentSpriteId).subscribe(res => {
       this.currentPixels = res.records;
 
+      this.status = "Ready";
+    });
+  }
+
+  private refreshOneSpriteModuleName: () => void = () => {
+    this.oneSpriteModuleName = this.sprites.find(s => s.id == this.oneSpriteModuleSpriteId).name;
+  }
+
+  private refreshOneSpriteModuleSpritePixels: () => void = () => {
+    this.status = "Refreshing one sprite module sprite pixels";
+    this.spriteMakerService.getPixelsForSprite(this.oneSpriteModuleSpriteId).subscribe(res => {
+      this.oneSpriteModuleSpritePixels = res.records;
       this.status = "Ready";
     });
   }
